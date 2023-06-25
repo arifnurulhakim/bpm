@@ -305,9 +305,9 @@ public function exportfilter(Request $request)
         else{
             if('parties.berat_barang < hargas.main_syarat_berat'){
                 if('hargas.sub_syarat_berat IS NOT NULL'){
-                    $party->addSelect(DB::raw("CONCAT(hargas.diskon_tonase, ',', diskon_tonase_sub) as harga"));
+                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
                 }else{
-                    $party->addSelect(DB::raw('hargas.diskon_tonase as harga'));
+                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
                 }
             }else{
             $party->addSelect(DB::raw('hargas.harga_tonase as harga'));

@@ -29,7 +29,7 @@ class PartyController extends Controller
     public function data()
     {
     $party = DB::table('parties')
-    ->select('parties.*', 'surat_angkuts.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
+    ->select('parties.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')

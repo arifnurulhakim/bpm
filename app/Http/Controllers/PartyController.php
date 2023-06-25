@@ -559,7 +559,9 @@ $dompdf->setPaper('A4', 'landscape');
             $dompdf->render();
             
             // Output the PDF as a download
-            $dompdf->stream('exported_data.pdf', ['Attachment' => true]);
+
+            $pdfFileName = 'party'. now() . '.pdf';
+            $dompdf->stream($pdfFileName, ['Attachment' => true]);
             
 
     // $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];

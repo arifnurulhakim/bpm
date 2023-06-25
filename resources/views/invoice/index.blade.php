@@ -36,7 +36,7 @@
                             <th>harga</th>
                             <th>status</th>
                             <th>beban tagihan oleh</th>
-                            <th width="15%"><i class="fa fa-cog"></i></th>
+                          
                         </thead>
                     </table>
                 </form>

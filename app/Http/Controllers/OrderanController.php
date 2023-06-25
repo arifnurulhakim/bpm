@@ -30,10 +30,10 @@ class OrderanController extends Controller
 
     {
 
-        $customer = Harga::select('nama_customer')->distinct()->get();
+        $customer = Harga::select('nama_customer')->distinct()->orderby('nama_customer','asc')->get();
 
 
-        $penerima = Harga::select('nama_penerima')->distinct()->get();
+        $penerima = Harga::select('nama_penerima')->distinct()->orderby('nama_penerima','asc')->get();
 
         return view('orderan.index',compact('customer','penerima'));
 

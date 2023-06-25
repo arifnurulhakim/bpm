@@ -46,11 +46,7 @@
 
                         <thead>
 
-                           
-
                             <th width="5%">No</th>
-
-                            <th>Update Status</th>
 
                             <th>Nomor surat angkut</th>
                             
@@ -152,8 +148,6 @@
 
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
 
-                {data: 'update_status', searchable: false, sortable: false},
-
                 {data: 'nomor_sa'},
 
                 {data: 'kode_tanda_penerima'},
@@ -248,7 +242,7 @@
 
                 {data: 'tanggal_kirim'},
 
-                {data: 'tanggal_terima'},
+                {data: 'tanggal_kembali'},
 
                 {data: 'tanggal_ditagihkan'},
 
@@ -370,7 +364,7 @@
 
                 $('#modal-form [name=tanggal_pengambilan]').val(response.tanggal_pengambilan);
 
-                $('#modal-form [name=tanggal_terima]').val(response.tanggal_terima);
+                $('#modal-form [name=tanggal_kembali]').val(response.tanggal_kembali);
 
                 $('#modal-form [name=harga]').val(response.harga);
 

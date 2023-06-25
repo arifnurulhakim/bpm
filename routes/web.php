@@ -152,6 +152,8 @@ Route::group(['middleware' => 'auth'], function () {
         
 
         Route::get('/surat_angkut/data', [SuratAngkutController::class, 'data'])->name('surat_angkut.data');
+        Route::get('/surat_angkut/data2', [SuratAngkutController::class, 'data2'])->name('surat_angkut.data2');
+        Route::get('/surat_angkut/index2', [SuratAngkutController::class, 'index2'])->name('surat_angkut.index2');
 
         Route::get('/surat_angkut/update_status/{id}', [SuratAngkutController::class, 'update_status'])->name('surat_angkut.update_status');
 

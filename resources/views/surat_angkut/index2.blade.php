@@ -4,7 +4,7 @@
 
 @section('title')
 
-    Daftar Orderan
+    Daftar surat angkut
 
 @endsection
 
@@ -14,7 +14,7 @@
 
     @parent
 
-    <li class="active">Daftar Orderan</li>
+    <li class="active">Daftar surat angkut terkirim</li>
 
 @endsection
 
@@ -30,17 +30,9 @@
 
             <div class="box-header with-border">
 
-                <button onclick="addForm('{{ route('orderan.store') }}')" class="btn btn-success btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Tambah</button>
-
-                <a href="{{ route('orderan.exportCSV') }}" class="btn btn-primary btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export CSV</a>
+                <a href="{{ route('surat_angkut.exportCSV') }}" class="btn btn-primary btn-xs btn-flat"><i class="fa fa-file-excel-o"></i> Export CSV</a>
 
             </div>
-
-            
-
-            
-
-
 
             <div class="box-body table-responsive">
 
@@ -56,6 +48,10 @@
 
                             <th width="5%">No</th>
 
+                            <th>Update Status</th>
+
+                            <th>Nomor surat angkut</th>
+                            
                             <th>Kode Tanda Penerima</th>
 
                             <th>nama customer</th>
@@ -66,13 +62,11 @@
 
                             <th>nama barang</th>
 
+                            <th>Total Jumlah Barang</th>
+
                             <th>Jumlah Barang</th>
                             
                             <th>Sisa Jumlah Barang</th>
-
-                            <!-- <th>Berat Barang</th> -->
-                            
-                            <th>jenis Berat</th>
 
                             <th>Nama Penerima</th>
 
@@ -80,9 +74,9 @@
 
                             <th>Telepon Penerima</th>
 
-                            <th>Supir</th>
+                            <!-- <th>Supir</th>
 
-                            <th>Nomor Mobil</th>
+                            <th>Nomor Mobil</th> -->
 
                             <th>Keterangan</th>
 
@@ -94,11 +88,14 @@
 
                             <th>Tanggal Pengambilan</th>
 
+                            <th>Tanggal Dikirim</th>
+
+                            <th>Tanggal dikembalikan</th>
+
+                            <th>Tanggal Ditanggihkan</th>
+
                             <th>Tanggal Dibuat</th>
 
-                            
-
-                            <th width="15%"><i class="fa fa-cog"></i></th>
 
                         </thead>
 
@@ -116,7 +113,7 @@
 
 
 
-@includeIf('orderan.form')
+@includeIf('surat_angkut.form')
 
 @endsection
 
@@ -132,118 +129,133 @@
 
     $(function () {
 
-table = $('.table').DataTable({
+        table = $('.table').DataTable({
 
-responsive: true,
+            responsive: true,
 
-processing: true,
+            processing: true,
 
-serverSide: true,
+            serverSide: true,
 
-autoWidth: false,
+            autoWidth: false,
 
-ajax: {
+            ajax: {
 
-url: '{{ route('orderan.data') }}',
+                url: '{{ route('surat_angkut.data2') }}',
 
-},
+            },
 
-columns: [
+            columns: [
 
-{data: 'DT_RowIndex', searchable: false, sortable: false},
+                {data: 'DT_RowIndex', searchable: false, sortable: false},
 
+                {data: 'update_status', searchable: false, sortable: false},
 
+                {data: 'nomor_sa'},
 
-{data: 'kode_tanda_penerima'},
+                {data: 'kode_tanda_penerima'},
 
-{data: 'nama_customer'},
+                {data: 'nama_customer'},
 
-{data: 'alamat_customer'},
+                {data: 'alamat_customer'},
 
-{data: 'telepon_customer'},
+                {data: 'telepon_customer'},
 
-{data: 'nama_barang'},
+                {data: 'nama_barang'},
 
-{data: 'jumlah_barang'},
+                {data: 'total_jumlah_barang'},
 
-{data: 'sisa_jumlah_barang'},
+                {data: 'jumlah_barang'},
 
-// {data: 'berat_barang'},
+                {data: 'sisa_jumlah_barang'},
 
-{data: 'jenis_berat'},
+                // {data: 'berat_barang'},
 
-{data: 'nama_penerima'},
+                {data: 'nama_penerima'},
 
-{data: 'alamat_penerima'},
+                {data: 'alamat_penerima'},
 
-{data: 'telepon_penerima'},
+                {data: 'telepon_penerima'},
 
-{data: 'supir'},
+                // {data: 'supir'},
 
-{data: 'no_mobil'},
+                // {data: 'no_mobil'},
 
-{data: 'keterangan'},
+                {data: 'keterangan'},
 
-// {data: 'harga'},
+                // {data: 'harga'},
 
-{
+                {
 
-    data: 'status',
+                    data: 'status',
 
-    render: function(data, type, row, meta){
+                    render: function(data, type, row, meta){
 
-        if (data == 1) {
+                        if (data == 1) {
 
-            return "belum dibuat SA";
+                            return "Diambil";
 
-        } else if (data == 2) {
+                        } else if (data == 2) {
 
-            return "sudah dibuat SA";
-        } else {
+                            return "Dikirim";
 
-            return "";
+                        } else if (data == 3) {
 
-        }
+                            return "Dikembalikan";
 
-    }
+                        } else if (data == 4) {
 
-},
+                            return "Ditagihkan";
 
-{
+                        } else {
 
-    data: 'tagihan_by',
+                            return "";
 
-    render: function(data, type, row, meta){
+                        }
 
-        if (data == 1) {
+                    }
 
-            return "Pengirim";
+                },
 
-        } else if (data == 2) {
+                {
 
-            return "Penerima";
+                    data: 'tagihan_by',
 
-        } else {
+                    render: function(data, type, row, meta){
 
-            return "";
+                        if (data == 1) {
 
-        }
+                            return "Pengirim";
 
-    }
+                        } else if (data == 2) {
 
-},
+                            return "Penerima";
 
+                        } else {
 
+                            return "";
 
-{data: 'tanggal_pengambilan'},
+                        }
 
-{data: 'created_at'},
+                    }
 
-{data: 'aksi', searchable: false, sortable: false},
+                },
 
-],
+                {data: 'tanggal_pengambilan'},
 
-});
+                {data: 'tanggal_kirim'},
+
+                {data: 'tanggal_kembali'},
+
+                {data: 'tanggal_ditagihkan'},
+
+                {data: 'created_at'},
+
+               
+
+            ]
+
+        });
 
 
 
@@ -281,7 +293,7 @@ columns: [
 
         $('#modal-form').modal('show');
 
-        $('#modal-form .modal-title').text('Tambah surat');
+        $('#modal-form .modal-title').text('Tambah Produk');
 
 
 
@@ -321,8 +333,6 @@ columns: [
 
                 $('#modal-form [name=nomor_sa]').val(response.nomor_sa);
 
-                $('#modal-form [name=id_orderan]').val(response.id_orderan);
-
                 $('#modal-form [name=kode_tanda_penerima]').val(response.kode_tanda_penerima);
 
                 $('#modal-form [name=nama_customer]').val(response.nama_customer);
@@ -333,11 +343,13 @@ columns: [
 
                 $('#modal-form [name=nama_barang]').val(response.nama_barang);
 
+                $('#modal-form [name=total_jumlah_barang]').val(response.total_jumlah_barang);
+
                 $('#modal-form [name=jumlah_barang]').val(response.jumlah_barang);
+                
+                $('#modal-form [name=sisa_jumlah_barang]').val(response.sisa_jumlah_barang);
 
                 // $('#modal-form [name=berat_barang]').val(response.berat_barang);
-
-                $('#modal-form [name=jenis_berat]').val(response.jenis_berat);
 
                 $('#modal-form [name=nama_penerima]').val(response.nama_penerima);
 
@@ -345,22 +357,19 @@ columns: [
 
                 $('#modal-form [name=telepon_penerima]').val(response.telepon_penerima);
 
-                $('#modal-form [name=supir]').val(response.supir);
+                // $('#modal-form [name=supir]').val(response.supir);
 
-                $('#modal-form [name=no_mobil]').val(response.no_mobil);
+                // $('#modal-form [name=no_mobil]').val(response.no_mobil);
 
                 $('#modal-form [name=keterangan]').val(response.keterangan);
 
-               
+                $('#modal-form [name=tanggal_kirim]').val(response.tanggal_kirim);
 
                 $('#modal-form [name=tanggal_pengambilan]').val(response.tanggal_pengambilan);
 
+                $('#modal-form [name=tanggal_kembali]').val(response.tanggal_kembali);
 
-                // $('#modal-form [name=harga]').val(response.harga);
-
-                $('#modal-form [name=status]').val(response.status);
-
-                $('#modal-form [name=tangihan_by]').val(response.tagihan_by);
+                $('#modal-form [name=harga]').val(response.harga);
 
                 $('#modal-form [name=created_at]').val(response.created_at);
 
@@ -414,10 +423,17 @@ columns: [
 
     }
 
- 
 
 
-   
+    function updateStatus(url) {
+
+        if (confirm('Apakah Anda yakin ingin mengubah status?')) {
+
+            window.location.href = url;
+
+        }
+
+    }
 
 
 

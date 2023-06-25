@@ -11,8 +11,8 @@ class HargaController extends Controller
 {
     public function index()
     {
-        $customers = Customer::all();
-        $penerimas = Penerima::all();
+        $customers = Customer::orderby('nama_customer','asc')->get();
+        $penerimas = Penerima::orderby('nama_penerima','asc')->get();
                 
         return view('harga.index', compact('customers', 'penerimas'));
     }

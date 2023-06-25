@@ -10,11 +10,17 @@ use App\Models\Penerima;
 use App\Models\Daftar_muat;
 use App\Models\Party;
 use Illuminate\Support\Facades\DB;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 class PartyController extends Controller
 {
     public function index()
     {
-        $surat_angkut = Surat_angkut::all();
+        $surat_angkut = Surat_angkut::leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
+        ->where('surat_angkuts.status',1)
+        ->orderby('surat_angkuts.nomor_sa','asc')
+        ->get();
 
         return view('party.index',compact('surat_angkut'));
 
@@ -23,7 +29,7 @@ class PartyController extends Controller
     public function data()
     {
     $party = DB::table('parties')
-    ->select('parties.*', 'surat_angkuts.*','orderans.id_harga', 'orderans.tagihan_by', 'orderans.status as status', 'orderans.tanggal_pengambilan as tanggal_pengambilan', 'orderans.tanggal_kirim as tanggal_kirim', 'orderans.tanggal_terima as tanggal_terima', 'orderans.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
+    ->select('parties.*', 'surat_angkuts.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
@@ -32,21 +38,21 @@ class PartyController extends Controller
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
                 CASE
-                    WHEN surat_angkuts.jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
+                    WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
                     ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
                 END
             WHEN orderans.jenis_berat = "ball" THEN
                 CASE
-                    WHEN surat_angkuts.jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
+                    WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
                     ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
                 END
             WHEN orderans.jenis_berat = "tonase" THEN
                 CASE
-                    WHEN parties.berat_barang < hargas.main_syarat_berat THEN
+                    WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
                         CASE
                             WHEN hargas.sub_syarat_berat IS NOT NULL THEN
                                     
-                                (hargas.sub_syarat_berat * hargas.diskon_tonase_sub) + ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.diskon_tonase)
+                                ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.harga_tonase)+(hargas.diskon_tonase_sub)
                                     
                             END
                        
@@ -135,7 +141,12 @@ class PartyController extends Controller
                 
                 $parties->tanggal_pembuatan = $request->tanggal_pembuatan;
                 $parties->save();
+
+                $surat_angkut->tanggal_kirim = now();
+                $surat_angkut->status=2;
+                $surat_angkut->update();
                 return response()->json('Data berhasil disimpan', 200);
+             
     }
 
     /**
@@ -267,6 +278,10 @@ public function exportfilter(Request $request)
             'parties.berat_barang',
             'orderans.id_harga',  
             'orderans.jenis_berat', 
+            'orderans.supir as supir_pengambil',
+            'orderans.no_mobil as no_mobil_pengambil',
+            'parties.supir as supir_pengantar',
+            'parties.no_mobil as no_mobil_pengantar',
 
             )
         ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
@@ -299,30 +314,60 @@ public function exportfilter(Request $request)
             }
         }
         $party->addSelect(DB::raw('
+        CASE
+        WHEN orderans.jenis_berat = "roll" THEN
             CASE
+                WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
+                ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
+            END
+        WHEN orderans.jenis_berat = "ball" THEN
+            CASE
+                WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
+                ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
+            END
+        WHEN orderans.jenis_berat = "tonase" THEN
+            CASE
+                WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
+                    CASE
+                        WHEN hargas.sub_syarat_berat IS NOT NULL THEN
+                                
+                            ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.harga_tonase)+(hargas.diskon_tonase_sub)
+                                
+                        END
+                   
+                ELSE
+                    parties.berat_barang * hargas.harga_tonase
+            END
+        ELSE 0
+    END AS total_harga
+        '))
+        ->addSelect(
+            DB::raw(
+                ' CASE
                 WHEN orderans.jenis_berat = "roll" THEN
                     CASE
-                        WHEN surat_angkuts.jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
-                        ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
+                        WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah 
+                        THEN hargas.diskon_roll
+                        ELSE hargas.harga_roll
                     END
                 WHEN orderans.jenis_berat = "ball" THEN
                     CASE
-                        WHEN surat_angkuts.jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
-                        ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
+                        WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah 
+                        THEN hargas.diskon_ball
+                        ELSE hargas.harga_ball
                     END
                 WHEN orderans.jenis_berat = "tonase" THEN
                     CASE
-                        WHEN parties.berat_barang < hargas.main_syarat_berat THEN
-                            CASE
-                                WHEN hargas.sub_syarat_berat IS NOT NULL THEN
-                                    (hargas.sub_syarat_berat * hargas.diskon_tonase_sub) + ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.diskon_tonase)
-                                END
+                        WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
+                        hargas.harga_tonase
                         ELSE
-                            parties.berat_barang * hargas.harga_tonase
+                        hargas.harga_tonase
                     END
                 ELSE 0
-            END AS total_harga
-        '));
+            END AS harga_satuan'
+            )
+        )
+        ;
     
     if ($kode_party) {
         $party->where('nomor_party', $kode_party);
@@ -366,58 +411,197 @@ public function exportfilter(Request $request)
 
     // dd($results);
 
-    $total_berat = 0;
-    $total_semua_harga = 0;
-    $total_jumlah_barang = 0;
-    foreach ($results as $pt) {
-        $total_berat += $pt->berat_barang;
-        $total_semua_harga += $pt->total_harga;
-        $total_jumlah_barang += $pt->jumlah_barang;
-    }
+   
 
     $party = $results->toArray(); // Convert the results to an array
 
+// Create a new Dompdf instance
+$dompdf = new Dompdf();
 
-    $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
-    $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
-    $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
-    $party[] = ['', '', '', '', '', ''];
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
-    ];
+// Set the paper size and orientation
+$dompdf->setPaper('A4', 'landscape');
 
-    $callback = function () use ($party) {
-        $file = fopen('php://output', 'w');
-        fputcsv($file, array_keys((array) $party[0])); // Convert the first object to an array for headers
-        foreach ($party as $row) {
-            fputcsv($file, (array) $row); // Convert each object to an array for rows
-        }
-        fclose($file);
-    };
+// Set the content
+// Set the content
+            $content = '<style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                  
+                   
+                }
+                
+                caption {
+                    text-align: left;
 
-    return response()->stream($callback, 200, $headers,);
+                    font-weight: bold;
 
-    $party = $results->toArray(); // Convert the results to an array
+     
+                      
+                }
+                
+                th, td {
+                    border: 1px solid black;
+                    padding: 8px;
+                }
+                
+                th {
+                    background-color: #dddddd;
+                }
+                
+            </style>';
+
+            $current_dm = null;
+            $total_harga_dm = 0; // Total harga keseluruhan for each nomor_dm
+            $total_barang_dm = 0; // Total banyak barang for each nomor_dm
+            $total_berat_dm = 0; // Total berat keseluruhan for each nomor_dm
+            
+            foreach ($party as $pt) {
+                // Check if the nomor_dm has changed
+                if ($current_dm !== $pt->nomor_dm) {
+                    // Display the total harga for the previous nomor_dm (if any)
+                    if ($current_dm !== null) {
+                        $content .= '<tr>
+                                        <td colspan="10">Total Harga Keseluruhan</td>
+                                        <td>Rp.' . $total_harga_dm . '</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10">Total Jumlah Keseluruhan</td>
+                                        <td>' . $total_barang_dm . '</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10">Total Berat Keseluruhan</td>
+                                        <td>' . $total_berat_dm . '</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <br></div>';
+                    }
+                    
+                    // Start a new table group for the current nomor_dm
+                    $content .= '<div style="page-break-inside: avoid;">
+                    <caption>Nama Supir Pengantar: ' . $pt->supir_pengantar . '</caption>
+                    <caption>Nomor Mobil: ' . $pt->no_mobil_pengantar . '</caption>
+                    <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal Pembuatan</th>
+                            <th>Supir Pengambil</th>
+                            <th>No mobil Pengambil</th>
+                            <th>Nomor DM</th>
+                            <th>Nomor SA</th>
+                            <th>Nama Customer</th>
+                            <th>Nama Penerima</th>
+                            <th>Jumlah Barang</th>
+                            <th>Berat Barang</th>
+                          
+                            <th>Harga</th>
+                            <th>Total Harga</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+                    $current_dm = $pt->nomor_dm;
+                    $total_harga_dm = 0; // Reset the total harga for the current nomor_dm
+                    $total_barang_dm = 0; // Reset the total banyak barang for the current nomor_dm
+                    $total_berat_dm = 0; // Reset the total berat for the current nomor_dm
+                }
+            
+                $content .= '<tr>
+                                <td>' . $pt->tanggal_pembuatan . '</td>
+                                <td>' . $pt->supir_pengambil . '</td>
+                                <td>' . $pt->no_mobil_pengambil . '</td>
+                                <td>' . $pt->nomor_dm . '</td>
+                                <td>' . $pt->nomor_sa . '</td>
+                                <td>' . $pt->nama_customer . '</td>
+                                <td>' . $pt->nama_penerima . '</td>
+                                <td>' . $pt->jumlah_barang . '</td>
+                                <td>' . $pt->berat_barang . '</td>
+                  
+                                <td>Rp.' . $pt->harga_satuan . '</td>
+                                <td>Rp.' . $pt->total_harga . '</td>
+                            </tr>';
+            
+                $total_harga_dm += $pt->total_harga; // Accumulate the total harga for the current nomor_dm
+                $total_barang_dm += $pt->jumlah_barang; // Accumulate the total banyak barang for the current nomor_dm
+                $total_berat_dm += $pt->berat_barang; // Accumulate the total berat for the current nomor_dm
+            }
+           
+           
+                // Display the total harga for the previous nomor_dm (if any)
+                if ($current_dm !== null) {
+                    $content .= '<tr>
+                                    <td colspan="10">Total Harga Keseluruhan</td>
+                                    <td>Rp.' . $total_harga_dm . '</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="10">Total Jumlah Keseluruhan</td>
+                                    <td>' . $total_barang_dm . '</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="10">Total Berat Keseluruhan</td>
+                                    <td>' . $total_berat_dm . '</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br></div>';
+                }
+            // Display the total rows for the last nomor_dm
+  
+            
+            // Load the HTML content into Dompdf
+            $dompdf->loadHtml($content);
+            
+            // (Optional) Set the font directory to include custom fonts if needed
+            // $dompdf->setOptions(['fontDir' => '/path/to/custom/fonts']);
+            
+            // Render the PDF
+            $dompdf->render();
+            
+            // Output the PDF as a download
+            $dompdf->stream('exported_data.pdf', ['Attachment' => true]);
+            
+
+    // $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
+    // $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
+    // $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
+    // $party[] = ['', '', '', '', '', ''];
+    // $headers = [
+    //     'Content-Type' => 'text/csv',
+    //     'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
+    // ];
+
+    // $callback = function () use ($party) {
+    //     $file = fopen('php://output', 'w');
+    //     fputcsv($file, array_keys((array) $party[0])); // Convert the first object to an array for headers
+    //     foreach ($party as $row) {
+    //         fputcsv($file, (array) $row); // Convert each object to an array for rows
+    //     }
+    //     fclose($file);
+    // };
+
+    // return response()->stream($callback, 200, $headers,);
+
+    // $party = $results->toArray(); // Convert the results to an array
     
-    $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
-    $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
-    $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
+    // $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
+    // $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
+    // $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
     
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
-    ];
+    // $headers = [
+    //     'Content-Type' => 'text/csv',
+    //     'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
+    // ];
     
-    $callback = function () use ($party) {
-        $file = fopen('php://output', 'w');
-        fputcsv($file, array_keys($party[0])); // Use $party[0] directly since it's already an array
-        foreach ($party as $row) {
-            fputcsv($file, $row); // Use $row directly since it's already an array
-        }
-        fclose($file);
-    };
+    // $callback = function () use ($party) {
+    //     $file = fopen('php://output', 'w');
+    //     fputcsv($file, array_keys($party[0])); // Use $party[0] directly since it's already an array
+    //     foreach ($party as $row) {
+    //         fputcsv($file, $row); // Use $row directly since it's already an array
+    //     }
+    //     fclose($file);
+    // };
     
-    return response()->stream($callback, 200, $headers);
+    // return response()->stream($callback, 200, $headers);
 }
 }

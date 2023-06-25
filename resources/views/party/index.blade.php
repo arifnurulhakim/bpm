@@ -263,7 +263,7 @@ simpanButton.addEventListener('click', function() {
 
                 {data: 'tanggal_kirim'},
 
-                {data: 'tanggal_terima'},
+                {data: 'tanggal_kembali'},
 
                 {data: 'tanggal_ditagihkan'},
 
@@ -420,7 +420,7 @@ if (! e.preventDefault()) {
 
                 $('#modal-form2 [name=tanggal_pengambilan]').val(response.tanggal_pengambilan);
 
-                $('#modal-form2 [name=tanggal_terima]').val(response.tanggal_terima);
+                $('#modal-form2 [name=tanggal_kembali]').val(response.tanggal_kembali);
 
                 $('#modal-form2 [name=harga]').val(response.harga);
 

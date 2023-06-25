@@ -18,66 +18,51 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        $orderans = Orderan::where('orderans.status', 3);
+        $orderans = Surat_angkut::where('surat_angkuts.status', 3);
         return view('invoice.index', compact('orderans'));
     }
 
     public function data()
     {
-        // $surat_angkut = DB::table('surat_angkuts')
-        // ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')->where('orderans.status = 3')
-        // ->select('surat_angkuts.*', 'orderans.status as status','orderans.tanggal_pengambilan as tanggal_pengambilan','orderans.tanggal_kirim as tanggal_kirim','orderans.tanggal_terima as tanggal_terima')
-        // ->get();
-        $surat_angkut = DB::table('orderans')->leftjoin('surat_angkuts', 'orderans.kode_tanda_penerima', '=','surat_angkuts.kode_tanda_penerima')->where('orderans.status', 3)
-        ->select('surat_angkuts.*','orderans.tagihan_by', 'orderans.status as status','orderans.tanggal_pengambilan as tanggal_pengambilan','orderans.tanggal_kirim as tanggal_kirim','orderans.tanggal_terima as tanggal_terima','orderans.tanggal_ditagihkan as tanggal_ditagihkan')
+       
+        $surat_angkut = DB::table('orderans')->leftjoin('surat_angkuts', 'orderans.kode_tanda_penerima', '=','surat_angkuts.kode_tanda_penerima')->where('surat_angkuts.status', 3)
+        ->select('surat_angkuts.*','orderans.tagihan_by', 'surat_angkuts.status as status','surat_angkuts.tanggal_pengambilan as tanggal_pengambilan','surat_angkuts.tanggal_kirim as tanggal_kirim','surat_angkuts.tanggal_kembali as tanggal_kembali','surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan')
         ->get();
 
-        // $surat_angkut = DB::table('orderans')
-        // ->leftJoin('surat_angkuts', 'orderans.kode_tanda_penerima', '=', 'surat_angkuts.kode_tanda_penerima')
-        // ->leftJoin('harga', function ($join) {
-        //     $join->on('surat_angkuts.nama_customer', '=', 'harga.nama_customer')
-        //         ->on('surat_angkuts.nama_penerima', '=', 'harga.nama_penerima')
-        //         ->on('surat_angkuts.total_jumlah_barang', '=', 'harga.total_jumlah_barang');
-        // })
-        // ->where('orderans.status', '=', 3)
-        // ->select('surat_angkuts.*', 'orderans.tagihan_by', 'orderans.status as status', 'orderans.tanggal_pengambilan as tanggal_pengambilan', 'orderans.tanggal_kirim as tanggal_kirim', 'orderans.tanggal_terima as tanggal_terima', 'orderans.tanggal_ditagihkan as tanggal_ditagihkan')
-        // ->get();
-
-        // dd($surat_angkut);
         $party = DB::table('parties')
-    ->select('parties.*', 'surat_angkuts.*','orderans.id_harga', 'orderans.tagihan_by', 'orderans.status as status', 'orderans.tanggal_pengambilan as tanggal_pengambilan', 'orderans.tanggal_kirim as tanggal_kirim', 'orderans.tanggal_terima as tanggal_terima', 'orderans.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
+    ->select('parties.*', 'surat_angkuts.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-    ->where('orderans.status',3)
+    ->where('surat_angkuts.status',3)
     ->distinct()
     ->addSelect(DB::raw('
+    CASE
+    WHEN orderans.jenis_berat = "roll" THEN
         CASE
-            WHEN orderans.jenis_berat = "roll" THEN
+            WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
+            ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
+        END
+    WHEN orderans.jenis_berat = "ball" THEN
+        CASE
+            WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
+            ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
+        END
+    WHEN orderans.jenis_berat = "tonase" THEN
+        CASE
+            WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
                 CASE
-                    WHEN surat_angkuts.total_jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.total_jumlah_barang * hargas.diskon_roll
-                    ELSE surat_angkuts.total_jumlah_barang * hargas.harga_roll
-                END
-            WHEN orderans.jenis_berat = "ball" THEN
-                CASE
-                    WHEN surat_angkuts.total_jumlah_barang < hargas.syarat_jumlah THEN surat_angkuts.total_jumlah_barang * hargas.diskon_ball
-                    ELSE surat_angkuts.total_jumlah_barang * hargas.harga_ball
-                END
-                WHEN orderans.jenis_berat = "tonase" THEN
-                CASE
-                    WHEN parties.berat_barang < hargas.main_syarat_berat THEN
-                        CASE
-                            WHEN hargas.sub_syarat_berat IS NOT NULL THEN
-                                    
-                                (hargas.sub_syarat_berat * hargas.diskon_tonase_sub) + ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.diskon_tonase)
-                                    
-                            END
-                       
-                    ELSE
-                        parties.berat_barang * hargas.harga_tonase
-                END
-            ELSE 0
-        END AS total_harga
+                    WHEN hargas.sub_syarat_berat IS NOT NULL THEN
+                            
+                        ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.harga_tonase)+(hargas.diskon_tonase_sub)
+                            
+                    END
+               
+            ELSE
+                parties.berat_barang * hargas.harga_tonase
+        END
+    ELSE 0
+END AS total_harga
     '))
     ->get();
 
@@ -88,33 +73,23 @@ class InvoiceController extends Controller
             ->of($party)
             ->addIndexColumn()
             ->addColumn('update_status', function ($party) {
-                $disabled = '';
-                if ($party->status = 3 ) {
-                    $disabled = 'disabled';
-                }
+             
                 return '
-                <button type="button" onclick="updateStatus(`'. route('invoice.update_status', $party->id_sa) .'`)" class="btn btn-xs btn-warning btn-flat" '. $disabled .'><i class="fa fa-edit"></i> Update Status</button>';
+                <button type="button" onclick="updateStatus(`'. route('invoice.update_status', $party->id_sa) .'`)" class="btn btn-xs btn-warning btn-flat" ><i class="fa fa-edit"></i> Update Status</button>';
             })
     
-            ->addColumn('aksi', function ($party) {
-                return '
-                    <div class="btn-group">
-                        <button type="button" onclick="editForm(`'. route('surat_angkut.update', $party->id_sa) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                        <button type="button" onclick="deleteData(`'. route('surat_angkut.destroy', $party->id_sa) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                        <button type="button" onclick="exportPDF(`'. route('surat_angkut.exportPDF', $party->id_sa) .'`)" class="btn btn-xs btn-success btn-flat"><i class="fa fa-book"></i></button>
-                    </div>
-                ';
-            })
-            ->rawColumns(['aksi', 'update_status'])
+           
+            ->rawColumns(['update_status'])
             ->make(true);
     }
     public function update_status($id){
         $surat_angkut = Surat_angkut::find($id);
-        $orderan = Orderan::where('kode_tanda_penerima', $surat_angkut->kode_tanda_penerima)->first();
+   
         // dd( $surat_angkut);
-            if ($orderan) {
-                $orderan->status = 4;
-                $orderan->update();
+            if ($surat_angkut) {
+                $surat_angkut->status = 4;
+                $surat_angkut->tanggal_ditagihkan=now();
+                $surat_angkut->update();
                 $orderans = Orderan::all();
                 return view('invoice.index', compact('orderans'));
             }
@@ -474,7 +449,7 @@ public function exportfilter(Request $request)
 //     $keterangan = 'Pengiriman Cepat';
 //     $tanggal_pengambilan = '2023-03-06';
 //     $tanggal_kirim = '2023-03-07';
-//     $tanggal_terima = '2023-03-08';
+//     $tanggal_kembali = '2023-03-08';
 //     $harga = 250000;
 
 //     // Membuat instance Invoice
@@ -521,7 +496,7 @@ public function exportfilter(Request $request)
 //                 ],
 //             ]))
 //             ->notes($keterangan)
-//             ->date($tanggal_terima)
+//             ->date($tanggal_kembali)
 //             ->taxRate($harga * 0.1);
 
 //     // Mendownload invoice dalam format PDF

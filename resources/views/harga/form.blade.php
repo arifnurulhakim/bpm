@@ -99,14 +99,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="diskon_tonase" class="col-lg-2 col-lg-offset-1 control-label">diskon/tonase</label>
-                        <div class="col-lg-6">
-                            <input type="number" name="diskon_tonase" id="diskon_tonase" class="form-control">
-                            <span class="help-block with-errors"></span>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="diskon_tonase_sub" class="col-lg-2 col-lg-offset-1 control-label">diskon/tonase Sub</label>
+                        <label for="diskon_tonase_sub" class="col-lg-2 col-lg-offset-1 control-label">harga khusus tonase pertama</label>
                         <div class="col-lg-6">
                             <input type="number" name="diskon_tonase_sub" id="diskon_tonase_sub" class="form-control">
                             <span class="help-block with-errors"></span>

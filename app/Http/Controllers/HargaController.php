@@ -76,7 +76,7 @@ class HargaController extends Controller
             $harga->syarat_jumlah = $request->syarat_jumlah;
             $harga->diskon_roll = $request->diskon_roll;
             $harga->diskon_ball = $request->diskon_ball;
-            $harga->diskon_tonase = $request->diskon_tonase;
+         
             $harga->diskon_tonase_sub = $request->diskon_tonase_sub;
 
             $harga->save();

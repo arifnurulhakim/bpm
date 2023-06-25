@@ -34,8 +34,8 @@
 
                         <th>diskon/roll</th>
                         <th>diskon/ball</th>
-                        <th>diskon/tonase</th>
-                        <th>diskon/tonase sub</th>
+                       
+                        <th>harga khusus tonase pertama</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
@@ -75,7 +75,7 @@
 
                 {data: 'diskon_roll'},
                 {data: 'diskon_ball'},
-                {data: 'diskon_tonase'},
+              
                 {data: 'diskon_tonase_sub'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
@@ -129,7 +129,7 @@
                 $('#modal-form [name=syarat_jumlah]').val(response.syarat_jumlah);
                 $('#modal-form [name=diskon_roll]').val(response.diskon_roll);
                 $('#modal-form [name=diskon_ball]').val(response.diskon_ball);
-                $('#modal-form [name=diskon_tonase]').val(response.diskon_tonase);
+
                 $('#modal-form [name=diskon_tonase_sub]').val(response.diskon_tonase_sub);
             })
             .fail((errors) => {

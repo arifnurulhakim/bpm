@@ -34,6 +34,7 @@ class PartyController extends Controller
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
     ->distinct()
+    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil','surat_angkuts.jumlah_barang')
     ->addSelect(DB::raw('
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
@@ -286,7 +287,7 @@ public function exportfilter(Request $request)
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil')
+    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil','surat_angkuts.jumlah_barang')
     ->distinct();
 
 $party->addSelect(DB::raw('

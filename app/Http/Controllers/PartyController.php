@@ -28,14 +28,43 @@ class PartyController extends Controller
 
     public function data()
     {
-    $party = DB::table('parties')
-    ->select('parties.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
-    ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
-    ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
-    ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-    ->distinct()
-    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil','surat_angkuts.jumlah_barang')
-    ->addSelect(DB::raw('
+        $party = DB::table('parties')
+        ->select('parties.id_party', 'parties.nomor_party', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.alamat_customer', 'parties.telepon_customer', 'parties.total_jumlah_barang', 'parties.jumlah_barang', 'parties.berat_barang', 'parties.nama_penerima', 'parties.alamat_penerima', 'parties.telepon_penerima', 'parties.supir', 'parties.no_mobil', 'parties.keterangan', 'parties.tanggal_pembuatan', 'parties.tanggal_kirim', 'parties.tanggal_terima', 'parties.created_at', 'parties.updated_at', 'orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
+        ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
+        ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
+        ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
+        ->distinct()
+        ->groupBy(
+            'parties.id_party',
+            'parties.nomor_party',
+            'parties.nomor_dm',
+            'parties.nomor_sa',
+            'parties.nama_customer',
+            'parties.alamat_customer',
+            'parties.telepon_customer',
+            'parties.total_jumlah_barang',
+            'parties.jumlah_barang',
+            'parties.berat_barang',
+            'parties.nama_penerima',
+            'parties.alamat_penerima',
+            'parties.telepon_penerima',
+            'parties.supir',
+            'parties.no_mobil',
+            'parties.keterangan',
+            'parties.tanggal_pembuatan',
+            'parties.tanggal_kirim',
+            'parties.tanggal_terima',
+            'parties.created_at',
+            'parties.updated_at',
+            'orderans.id_harga',
+            'orderans.tagihan_by',
+            'surat_angkuts.status',
+            'surat_angkuts.tanggal_pengambilan',
+            'surat_angkuts.tanggal_kirim',
+            'surat_angkuts.tanggal_kembali',
+            'surat_angkuts.tanggal_ditagihkan',
+            'hargas.*'
+        )->addSelect(DB::raw('
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
                 CASE
@@ -268,26 +297,42 @@ public function exportfilter(Request $request)
     $tanggal_awal = $request->tanggal_awal;
     $tanggal_akhir = $request->tanggal_akhir;
 
-   $party = DB::table('parties')
-    ->select(
-        'parties.tanggal_pembuatan',
-        'parties.nomor_dm', 
-        'parties.nomor_sa', 
-        'parties.nama_customer', 
-        'parties.nama_penerima',
-        'parties.jumlah_barang', 
-        'parties.berat_barang',
-        'orderans.id_harga',  
-        'orderans.jenis_berat', 
-        'orderans.supir as supir_pengambil',
-        'orderans.no_mobil as no_mobil_pengambil',
-        'parties.supir as supir_pengantar',
-        'parties.no_mobil as no_mobil_pengantar',
-    )
+    $party = DB::table('parties')
+    ->select('parties.id_party', 'parties.nomor_party', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.alamat_customer', 'parties.telepon_customer', 'parties.total_jumlah_barang', 'parties.jumlah_barang', 'parties.berat_barang', 'parties.nama_penerima', 'parties.alamat_penerima', 'parties.telepon_penerima', 'parties.supir', 'parties.no_mobil', 'parties.keterangan', 'parties.tanggal_pembuatan', 'parties.tanggal_kirim', 'parties.tanggal_terima', 'parties.created_at', 'parties.updated_at', 'orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil','surat_angkuts.jumlah_barang','parties.id_party')
+    ->distinct()
+    ->groupBy(
+        'parties.id_party',
+        'parties.nomor_party',
+        'parties.nomor_dm',
+        'parties.nomor_sa',
+        'parties.nama_customer',
+        'parties.alamat_customer',
+        'parties.telepon_customer',
+        'parties.total_jumlah_barang',
+        'parties.jumlah_barang',
+        'parties.berat_barang',
+        'parties.nama_penerima',
+        'parties.alamat_penerima',
+        'parties.telepon_penerima',
+        'parties.supir',
+        'parties.no_mobil',
+        'parties.keterangan',
+        'parties.tanggal_pembuatan',
+        'parties.tanggal_kirim',
+        'parties.tanggal_terima',
+        'parties.created_at',
+        'parties.updated_at',
+        'orderans.id_harga',
+        'orderans.tagihan_by',
+        'surat_angkuts.status',
+        'surat_angkuts.tanggal_pengambilan',
+        'surat_angkuts.tanggal_kirim',
+        'surat_angkuts.tanggal_kembali',
+        'surat_angkuts.tanggal_ditagihkan',
+        'hargas.*')
     ->distinct();
 
 $party->addSelect(DB::raw('

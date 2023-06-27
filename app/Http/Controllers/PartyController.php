@@ -286,31 +286,8 @@ public function exportfilter(Request $request)
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
+    ->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil')
     ->distinct();
-
-if ($orderans.jenis_berat == 'roll') {
-    if ($surat_angkuts.jumlah_barang < $hargas.syarat_jumlah) {
-        $party->addSelect(DB::raw('hargas.diskon_roll as harga'));
-    } else {
-        $party->addSelect(DB::raw('hargas.harga_roll as harga'));
-    }
-} else if ($orderans.jenis_berat == 'ball') {
-    if ($surat_angkuts.jumlah_barang < $hargas.syarat_jumlah) {
-        $party->addSelect(DB::raw('hargas.diskon_ball as harga'));
-    } else {
-        $party->addSelect(DB::raw('hargas.harga_ball as harga'));
-    }
-} else {
-    if ($parties.berat_barang < $hargas.main_syarat_berat) {
-        if ($hargas.sub_syarat_berat != NULL) {
-            $party->addSelect(DB::raw('(parties.berat_barang - hargas.sub_syarat_berat) * hargas.harga_tonase as harga'));
-        } else {
-            $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
-        }
-    } else {
-        $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
-    }
-}
 
 $party->addSelect(DB::raw('
     CASE
@@ -394,7 +371,7 @@ if ($tanggal_awal && $tanggal_akhir) {
     $party->where('tanggal_pembuatan', $tanggal_awal);
 }
 
-$results = $party->groupBy('parties.tanggal_pembuatan', 'parties.nomor_dm', 'parties.nomor_sa', 'parties.nama_customer', 'parties.nama_penerima', 'parties.jumlah_barang', 'parties.berat_barang', 'orderans.id_harga', 'orderans.jenis_berat', 'orderans.supir', 'orderans.no_mobil', 'parties.supir', 'parties.no_mobil')->get();
+$results = $party->get();
 
     
 

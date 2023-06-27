@@ -28,105 +28,13 @@ class PartyController extends Controller
 
     public function data()
     {
-        $party = DB::table('parties')
-        ->select( 'parties.id_party',
-        'parties.nomor_party',
-        'parties.nomor_dm',
-        'parties.nomor_sa',
-        'parties.nama_customer',
-        'parties.alamat_customer',
-        'parties.telepon_customer',
-        'parties.total_jumlah_barang',
-        'parties.jumlah_barang',
-        'parties.berat_barang',
-        'parties.nama_penerima',
-        'parties.alamat_penerima',
-        'parties.telepon_penerima',
-        'parties.supir',
-        'parties.no_mobil',
-        'parties.keterangan',
-        'parties.tanggal_pembuatan',
-        'parties.tanggal_kirim',
-        'parties.tanggal_terima',
-        'parties.created_at',
-        'parties.updated_at',
-        'orderans.id_harga',
-        'orderans.tagihan_by',
-        'surat_angkuts.status',
-        'surat_angkuts.tanggal_pengambilan',
-        'surat_angkuts.tanggal_kirim',
-        'surat_angkuts.tanggal_kembali',
-        'surat_angkuts.tanggal_ditagihkan',
-        'hargas.id_harga',
-        'hargas.nama_customer',
-        'hargas.alamat_customer',
-        'hargas.nama_penerima',
-        'hargas.alamat_penerima',
-        'hargas.harga_roll',
-        'hargas.harga_ball',
-        'hargas.harga_tonase',
-        'hargas.main_syarat_berat',
-        'hargas.sub_syarat_berat',
-        'hargas.created_at',
-        'hargas.updated_at',
-        'hargas.syarat_jumlah',
-        'hargas.diskon_tonase_sub',
-        'hargas.diskon_ball',
-        'hargas.diskon_roll',
-'orderans.jenis_berat',
-'surat_angkuts.jumlah_barang')
-        ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
-        ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
-        ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-        ->distinct()
-        ->groupBy(
-            'parties.id_party',
-            'parties.nomor_party',
-            'parties.nomor_dm',
-            'parties.nomor_sa',
-            'parties.nama_customer',
-            'parties.alamat_customer',
-            'parties.telepon_customer',
-            'parties.total_jumlah_barang',
-            'parties.jumlah_barang',
-            'parties.berat_barang',
-            'parties.nama_penerima',
-            'parties.alamat_penerima',
-            'parties.telepon_penerima',
-            'parties.supir',
-            'parties.no_mobil',
-            'parties.keterangan',
-            'parties.tanggal_pembuatan',
-            'parties.tanggal_kirim',
-            'parties.tanggal_terima',
-            'parties.created_at',
-            'parties.updated_at',
-            'orderans.id_harga',
-            'orderans.tagihan_by',
-            'surat_angkuts.status',
-            'surat_angkuts.tanggal_pengambilan',
-            'surat_angkuts.tanggal_kirim',
-            'surat_angkuts.tanggal_kembali',
-            'surat_angkuts.tanggal_ditagihkan',
-            'hargas.id_harga',
-            'hargas.nama_customer',
-            'hargas.alamat_customer',
-            'hargas.nama_penerima',
-            'hargas.alamat_penerima',
-            'hargas.harga_roll',
-            'hargas.harga_ball',
-            'hargas.harga_tonase',
-            'hargas.main_syarat_berat',
-            'hargas.sub_syarat_berat',
-            'hargas.created_at',
-            'hargas.updated_at',
-            'hargas.syarat_jumlah',
-            'hargas.diskon_tonase_sub',
-            'hargas.diskon_ball',
-            'hargas.diskon_roll',
-'orderans.jenis_berat',
-'surat_angkuts.jumlah_barang'    
-        )->addSelect(DB::raw('
+    $party = DB::table('parties')
+    ->select('parties.*','orderans.id_harga', 'orderans.tagihan_by', 'surat_angkuts.status as status', 'surat_angkuts.tanggal_pengambilan as tanggal_pengambilan', 'surat_angkuts.tanggal_kirim as tanggal_kirim', 'surat_angkuts.tanggal_kembali as tanggal_kembali', 'surat_angkuts.tanggal_ditagihkan as tanggal_ditagihkan', 'hargas.*')
+    ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
+    ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
+    ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
+    ->distinct()
+    ->addSelect(DB::raw('
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
                 CASE
@@ -360,191 +268,144 @@ public function exportfilter(Request $request)
     $tanggal_akhir = $request->tanggal_akhir;
 
     $party = DB::table('parties')
-    ->select( 'parties.id_party',
-    'parties.nomor_party',
-    'parties.nomor_dm',
-    'parties.nomor_sa',
-    'parties.nama_customer',
-    'parties.alamat_customer',
-    'parties.telepon_customer',
-    'parties.total_jumlah_barang',
-    'parties.jumlah_barang',
-    'parties.berat_barang',
-    'parties.nama_penerima',
-    'parties.alamat_penerima',
-    'parties.telepon_penerima',
-    'parties.supir',
-    'parties.no_mobil',
-    'parties.keterangan',
-    'parties.tanggal_pembuatan',
-    'parties.tanggal_kirim',
-    'parties.tanggal_terima',
-    'parties.created_at',
-    'parties.updated_at',
-    'orderans.id_harga',
-    'orderans.tagihan_by',
-    'surat_angkuts.status',
-    'surat_angkuts.tanggal_pengambilan',
-    'surat_angkuts.tanggal_kirim',
-    'surat_angkuts.tanggal_kembali',
-    'surat_angkuts.tanggal_ditagihkan',
-    'hargas.id_harga',
-    'hargas.nama_customer',
-    'hargas.alamat_customer',
-    'hargas.nama_penerima',
-    'hargas.alamat_penerima',
-    'hargas.harga_roll',
-    'hargas.harga_ball',
-    'hargas.harga_tonase',
-    'hargas.main_syarat_berat',
-    'hargas.sub_syarat_berat',
-    'hargas.created_at',
-    'hargas.updated_at',
-    'hargas.syarat_jumlah',
-    'hargas.diskon_tonase_sub',
-    'hargas.diskon_ball',
-    'hargas.diskon_roll',
-
-    'orderans.jenis_berat',
-'surat_angkuts.jumlah_barang')
-    ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
-    ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
-    ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
-    ->distinct()
-    ->groupBy(
-        'parties.id_party',
-            'parties.nomor_party',
-            'parties.nomor_dm',
-            'parties.nomor_sa',
-            'parties.nama_customer',
-            'parties.alamat_customer',
-            'parties.telepon_customer',
-            'parties.total_jumlah_barang',
-            'parties.jumlah_barang',
-            'parties.berat_barang',
-            'parties.nama_penerima',
-            'parties.alamat_penerima',
-            'parties.telepon_penerima',
-            'parties.supir',
-            'parties.no_mobil',
-            'parties.keterangan',
+        ->select(
             'parties.tanggal_pembuatan',
-            'parties.tanggal_kirim',
-            'parties.tanggal_terima',
-            'parties.created_at',
-            'parties.updated_at',
-            'orderans.id_harga',
-            'orderans.tagihan_by',
-            'surat_angkuts.status',
-            'surat_angkuts.tanggal_pengambilan',
-            'surat_angkuts.tanggal_kirim',
-            'surat_angkuts.tanggal_kembali',
-            'surat_angkuts.tanggal_ditagihkan',
-            'hargas.id_harga',
-            'hargas.nama_customer',
-            'hargas.alamat_customer',
-            'hargas.nama_penerima',
-            'hargas.alamat_penerima',
-            'hargas.harga_roll',
-            'hargas.harga_ball',
-            'hargas.harga_tonase',
-            'hargas.main_syarat_berat',
-            'hargas.sub_syarat_berat',
-            'hargas.created_at',
-            'hargas.updated_at',
-            'hargas.syarat_jumlah',
-            'hargas.diskon_tonase_sub',
-            'hargas.diskon_ball',
-            'hargas.diskon_roll',
-'orderans.jenis_berat',
-'surat_angkuts.jumlah_barang'    
-    )
+            'parties.nomor_dm', 
+            'parties.nomor_sa', 
+            'parties.nama_customer', 
+            'parties.nama_penerima',
+            'parties.jumlah_barang', 
+            'parties.berat_barang',
+            'orderans.id_harga',  
+            'orderans.jenis_berat', 
+            'orderans.supir as supir_pengambil',
+            'orderans.no_mobil as no_mobil_pengambil',
+            'parties.supir as supir_pengantar',
+            'parties.no_mobil as no_mobil_pengantar',
 
-    ->distinct();
-
-$party->addSelect(DB::raw('
-    CASE
-    WHEN orderans.jenis_berat = "roll" THEN
+            )
+        ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
+        ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
+        ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
+        ->distinct();
+        if('orderans.jenis_berat'=='roll'){
+            if('surat_angkuts.jumlah_barang < hargas.syarat_jumlah'){
+                $party->addSelect(DB::raw('hargas.diskon_roll as harga'));
+            }else{
+            $party->addSelect(DB::raw('hargas.harga_roll as harga'));
+            }
+        }
+        else if('orderans.jenis_berat'=='ball'){
+            if('surat_angkuts.jumlah_barang < hargas.syarat_jumlah'){
+                $party->addSelect(DB::raw('hargas.diskon_ball as harga'));
+            }else{
+            $party->addSelect(DB::raw('hargas.harga_ball as harga'));
+            }
+        }
+        else{
+            if('parties.berat_barang < hargas.main_syarat_berat'){
+                if('hargas.sub_syarat_berat IS NOT NULL'){
+                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
+                }else{
+                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
+                }
+            }else{
+            $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
+            }
+        }
+        $party->addSelect(DB::raw('
         CASE
-            WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
-            ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
-        END
-    WHEN orderans.jenis_berat = "ball" THEN
-        CASE
-            WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
-            ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
-        END
-    WHEN orderans.jenis_berat = "tonase" THEN
-        CASE
-            WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
-                CASE
-                    WHEN hargas.sub_syarat_berat IS NOT NULL THEN
-                        ((parties.berat_barang - hargas.sub_syarat_berat) * hargas.harga_tonase) + hargas.diskon_tonase_sub
+        WHEN orderans.jenis_berat = "roll" THEN
+            CASE
+                WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_roll
+                ELSE surat_angkuts.jumlah_barang * hargas.harga_roll
+            END
+        WHEN orderans.jenis_berat = "ball" THEN
+            CASE
+                WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN surat_angkuts.jumlah_barang * hargas.diskon_ball
+                ELSE surat_angkuts.jumlah_barang * hargas.harga_ball
+            END
+        WHEN orderans.jenis_berat = "tonase" THEN
+            CASE
+                WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
+                    CASE
+                        WHEN hargas.sub_syarat_berat IS NOT NULL THEN
+                                
+                            ((parties.berat_barang-hargas.sub_syarat_berat) * hargas.harga_tonase)+(hargas.diskon_tonase_sub)
+                                
+                        END
+                   
+                ELSE
+                    parties.berat_barang * hargas.harga_tonase
+            END
+        ELSE 0
+    END AS total_harga
+        '))
+        ->addSelect(
+            DB::raw(
+                ' CASE
+                WHEN orderans.jenis_berat = "roll" THEN
+                    CASE
+                        WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah 
+                        THEN hargas.diskon_roll
+                        ELSE hargas.harga_roll
                     END
-            ELSE
-                parties.berat_barang * hargas.harga_tonase
-        END
-    ELSE 0
-END AS total_harga
-'))
-    ->addSelect(
-        DB::raw(
-            'CASE
-            WHEN orderans.jenis_berat = "roll" THEN
-                CASE
-                    WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN hargas.diskon_roll
-                    ELSE hargas.harga_roll
-                END
-            WHEN orderans.jenis_berat = "ball" THEN
-                CASE
-                    WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah THEN hargas.diskon_ball
-                    ELSE hargas.harga_ball
-                END
-            WHEN orderans.jenis_berat = "tonase" THEN
-                CASE
-                    WHEN parties.berat_barang <= hargas.main_syarat_berat THEN hargas.harga_tonase
-                    ELSE hargas.harga_tonase
-                END
-            ELSE 0
-        END AS harga_satuan'
+                WHEN orderans.jenis_berat = "ball" THEN
+                    CASE
+                        WHEN surat_angkuts.jumlah_barang > hargas.syarat_jumlah 
+                        THEN hargas.diskon_ball
+                        ELSE hargas.harga_ball
+                    END
+                WHEN orderans.jenis_berat = "tonase" THEN
+                    CASE
+                        WHEN parties.berat_barang <= hargas.main_syarat_berat THEN
+                        hargas.harga_tonase
+                        ELSE
+                        hargas.harga_tonase
+                    END
+                ELSE 0
+            END AS harga_satuan'
+            )
         )
-    );
+        ;
+    
+    if ($kode_party) {
+        $party->where('nomor_party', $kode_party);
+    }
 
-if ($kode_party) {
-    $party->where('nomor_party', $kode_party);
-}
+    if ($kode_dm) {
+        $party->where('nomor_dm', $kode_dm);
+    }
 
-if ($kode_dm) {
-    $party->where('nomor_dm', $kode_dm);
-}
+    if ($nomor_sa) {
+        $party->where('nomor_sa', $nomor_sa);
+    }
 
-if ($nomor_sa) {
-    $party->where('nomor_sa', $nomor_sa);
-}
+    if ($nama_customer) {
+        $party->where('nama_customer', $nama_customer);
+    }
 
-if ($nama_customer) {
-    $party->where('nama_customer', $nama_customer);
-}
+    if ($nama_penerima) {
+        $party->where('nama_penerima', $nama_penerima);
+    }
 
-if ($nama_penerima) {
-    $party->where('nama_penerima', $nama_penerima);
-}
+    if ($supir) {
+        $party->where('supir', $supir);
+    }
 
-if ($supir) {
-    $party->where('supir', $supir);
-}
+    if ($no_mobil) {
+        $party->where('no_mobil', $no_mobil);
+    }
 
-if ($no_mobil) {
-    $party->where('no_mobil', $no_mobil);
-}
+    if ($tanggal_awal && $tanggal_akhir) {
+        $party->whereBetween('tanggal_pembuatan', [$tanggal_awal, $tanggal_akhir]);
+    }
+    else if ($tanggal_awal) {
+        $party->where('tanggal_pembuatan', $tanggal_awal);
+    }
 
-if ($tanggal_awal && $tanggal_akhir) {
-    $party->whereBetween('tanggal_pembuatan', [$tanggal_awal, $tanggal_akhir]);
-} else if ($tanggal_awal) {
-    $party->where('tanggal_pembuatan', $tanggal_awal);
-}
 
-$results = $party->get();
+    $results = $party->get();
 
     
 

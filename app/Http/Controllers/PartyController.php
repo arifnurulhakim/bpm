@@ -63,7 +63,22 @@ class PartyController extends Controller
             'surat_angkuts.tanggal_kirim',
             'surat_angkuts.tanggal_kembali',
             'surat_angkuts.tanggal_ditagihkan',
-            'hargas.*'
+            'hargas.id_harga',
+            'hargas.nama_customer',
+            'hargas.alamat_customer',
+            'hargas.nama_penerima',
+            'hargas.alamat_penerima',
+            'hargas.harga_roll',
+            'hargas.harga_ball',
+            'hargas.harga_tonase',
+            'hargas.main_syarat_berat',
+            'hargas.sub_syarat_berat',
+            'hargas.created_at',
+            'hargas.updated_at',
+            'hargas.syarat_jumlah',
+            'hargas.diskon_tonase_sub',
+            'hargas.diskon_ball',
+            'hargas.diskon_roll'    
         )->addSelect(DB::raw('
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
@@ -332,7 +347,24 @@ public function exportfilter(Request $request)
         'surat_angkuts.tanggal_kirim',
         'surat_angkuts.tanggal_kembali',
         'surat_angkuts.tanggal_ditagihkan',
-        'hargas.*')
+        'hargas.id_harga',
+        'hargas.nama_customer',
+        'hargas.alamat_customer',
+        'hargas.nama_penerima',
+        'hargas.alamat_penerima',
+        'hargas.harga_roll',
+        'hargas.harga_ball',
+        'hargas.harga_tonase',
+        'hargas.main_syarat_berat',
+        'hargas.sub_syarat_berat',
+        'hargas.created_at',
+        'hargas.updated_at',
+        'hargas.syarat_jumlah',
+        'hargas.diskon_tonase_sub',
+        'hargas.diskon_ball',
+        'hargas.diskon_roll'
+    )
+
     ->distinct();
 
 $party->addSelect(DB::raw('

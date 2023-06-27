@@ -72,7 +72,8 @@ class PartyController extends Controller
         'hargas.syarat_jumlah',
         'hargas.diskon_tonase_sub',
         'hargas.diskon_ball',
-        'hargas.diskon_roll')
+        'hargas.diskon_roll',
+'orderans.jenis_berat')
         ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
         ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
         ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
@@ -121,7 +122,8 @@ class PartyController extends Controller
             'hargas.syarat_jumlah',
             'hargas.diskon_tonase_sub',
             'hargas.diskon_ball',
-            'hargas.diskon_roll'    
+            'hargas.diskon_roll',
+'orderans.jenis_berat'    
         )->addSelect(DB::raw('
         CASE
             WHEN orderans.jenis_berat = "roll" THEN
@@ -399,7 +401,9 @@ public function exportfilter(Request $request)
     'hargas.syarat_jumlah',
     'hargas.diskon_tonase_sub',
     'hargas.diskon_ball',
-    'hargas.diskon_roll')
+    'hargas.diskon_roll',
+
+    'orderans.jenis_berat')
     ->leftJoin('surat_angkuts', 'parties.nomor_sa', '=', 'surat_angkuts.nomor_sa')
     ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
     ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
@@ -448,7 +452,8 @@ public function exportfilter(Request $request)
             'hargas.syarat_jumlah',
             'hargas.diskon_tonase_sub',
             'hargas.diskon_ball',
-            'hargas.diskon_roll'    
+            'hargas.diskon_roll',
+'orderans.jenis_berat'    
     )
 
     ->distinct();

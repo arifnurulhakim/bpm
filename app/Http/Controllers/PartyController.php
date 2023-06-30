@@ -436,7 +436,23 @@ $dompdf->setPaper('A4', 'landscape');
                 // Check if the nomor_dm has changed
                 if ($current_dm !== $pt->nomor_dm) {
                     // Display the total harga for the previous nomor_dm (if any)
-                 
+                    if ($current_dm !== null) {
+                        $content .= '<tr>
+                                        <td colspan="10">Total Harga Keseluruhan</td>
+                                        <td>Rp.' . $total_harga_dm . '</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10">Total Jumlah Keseluruhan</td>
+                                        <td>' . $total_barang_dm . '</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="10">Total Berat Keseluruhan</td>
+                                        <td>' . $total_berat_dm . '</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <br></div>';
+                    }
                     
                     // Start a new table group for the current nomor_dm
                     $content .= '<div style="page-break-inside: avoid;">

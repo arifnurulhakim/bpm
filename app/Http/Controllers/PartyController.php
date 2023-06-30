@@ -288,31 +288,7 @@ public function exportfilter(Request $request)
         ->leftJoin('orderans', 'surat_angkuts.kode_tanda_penerima', '=', 'orderans.kode_tanda_penerima')
         ->leftJoin('hargas', 'orderans.id_harga', '=', 'hargas.id_harga')
         ->distinct();
-        if('orderans.jenis_berat'=='roll'){
-            if('surat_angkuts.jumlah_barang < hargas.syarat_jumlah'){
-                $party->addSelect(DB::raw('hargas.diskon_roll as harga'));
-            }else{
-            $party->addSelect(DB::raw('hargas.harga_roll as harga'));
-            }
-        }
-        else if('orderans.jenis_berat'=='ball'){
-            if('surat_angkuts.jumlah_barang < hargas.syarat_jumlah'){
-                $party->addSelect(DB::raw('hargas.diskon_ball as harga'));
-            }else{
-            $party->addSelect(DB::raw('hargas.harga_ball as harga'));
-            }
-        }
-        else{
-            if('parties.berat_barang < hargas.main_syarat_berat'){
-                if('hargas.sub_syarat_berat IS NOT NULL'){
-                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
-                }else{
-                    $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
-                }
-            }else{
-            $party->addSelect(DB::raw('hargas.harga_tonase as harga'));
-            }
-        }
+       
         $party->addSelect(DB::raw('
         CASE
         WHEN orderans.jenis_berat = "roll" THEN
@@ -460,23 +436,7 @@ $dompdf->setPaper('A4', 'landscape');
                 // Check if the nomor_dm has changed
                 if ($current_dm !== $pt->nomor_dm) {
                     // Display the total harga for the previous nomor_dm (if any)
-                    if ($current_dm !== null) {
-                        $content .= '<tr>
-                                        <td colspan="10">Total Harga Keseluruhan</td>
-                                        <td>Rp.' . $total_harga_dm . '</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="10">Total Jumlah Keseluruhan</td>
-                                        <td>' . $total_barang_dm . '</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="10">Total Berat Keseluruhan</td>
-                                        <td>' . $total_berat_dm . '</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <br></div>';
-                    }
+                 
                     
                     // Start a new table group for the current nomor_dm
                     $content .= '<div style="page-break-inside: avoid;">
@@ -563,47 +523,5 @@ $dompdf->setPaper('A4', 'landscape');
             $pdfFileName = 'party'. now() . '.pdf';
             $dompdf->stream($pdfFileName, ['Attachment' => true]);
             
-
-    // $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
-    // $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
-    // $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
-    // $party[] = ['', '', '', '', '', ''];
-    // $headers = [
-    //     'Content-Type' => 'text/csv',
-    //     'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
-    // ];
-
-    // $callback = function () use ($party) {
-    //     $file = fopen('php://output', 'w');
-    //     fputcsv($file, array_keys((array) $party[0])); // Convert the first object to an array for headers
-    //     foreach ($party as $row) {
-    //         fputcsv($file, (array) $row); // Convert each object to an array for rows
-    //     }
-    //     fclose($file);
-    // };
-
-    // return response()->stream($callback, 200, $headers,);
-
-    // $party = $results->toArray(); // Convert the results to an array
-    
-    // $party[] = ['Total Berat Barang', $total_berat, '', '', '', ''];
-    // $party[] = ['Total Semua Harga', $total_semua_harga, '', '', '', ''];
-    // $party[] = ['Total Jumlah Barang', $total_jumlah_barang, '', '', '', ''];
-    
-    // $headers = [
-    //     'Content-Type' => 'text/csv',
-    //     'Content-Disposition' => 'attachment; filename="party_' . date('Ymd_His') . '.csv"',
-    // ];
-    
-    // $callback = function () use ($party) {
-    //     $file = fopen('php://output', 'w');
-    //     fputcsv($file, array_keys($party[0])); // Use $party[0] directly since it's already an array
-    //     foreach ($party as $row) {
-    //         fputcsv($file, $row); // Use $row directly since it's already an array
-    //     }
-    //     fclose($file);
-    // };
-    
-    // return response()->stream($callback, 200, $headers);
 }
 }

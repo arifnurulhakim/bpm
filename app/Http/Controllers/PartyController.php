@@ -432,6 +432,7 @@ table {
 caption {
     text-align: left;
     font-weight: bold;
+    font-size: small;
 }
 
 th, td {

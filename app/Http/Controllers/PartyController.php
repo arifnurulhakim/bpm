@@ -482,7 +482,7 @@ public function exportfilter(Request $request)
                         </table>
                         <br></div>';
     }
-
+    $dompdf = new Dompdf();
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'landscape');
     $dompdf->render();

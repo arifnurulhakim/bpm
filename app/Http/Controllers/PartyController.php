@@ -423,33 +423,29 @@ $dompdf->setPaper('A4', 'landscape');
 
 // Set the content
 // Set the content
-            $content = '<style>
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                  
-                   
-                }
-                
-                caption {
-                    text-align: left;
+$content = '<style>
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-                    font-weight: bold;
+caption {
+    text-align: left;
+    font-weight: bold;
+}
 
-     
-                      
-                }
-                
-                th, td {
-                    border: 1px solid black;
-                    padding: 8px;
-                }
-                
-                th {
-                    background-color: #dddddd;
-                }
-                
-            </style>';
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    font-size: small; /* Mengubah ukuran font menjadi kecil */
+}
+
+th {
+    background-color: #dddddd;
+}
+
+</style>';
+
 
             $current_dm = null;
             $total_harga_dm = 0; // Total harga keseluruhan for each nomor_dm

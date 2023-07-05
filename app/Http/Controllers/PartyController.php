@@ -405,7 +405,7 @@ public function exportfilter(Request $request)
     }
 
 
-    $results = $party->get();
+    $results = $party->orderby('nomor_dm','asc')->get();
 
     
 

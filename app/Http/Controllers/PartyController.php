@@ -360,8 +360,7 @@ public function exportfilter(Request $request)
 
     if ($tanggal_awal && $tanggal_akhir) {
         $party->whereBetween('tanggal_pembuatan', [$tanggal_awal, $tanggal_akhir]);
-    } 
-    if ($tanggal_awal) {
+    } else if ($tanggal_awal) {
         $party->where('tanggal_pembuatan', $tanggal_awal);
     }
 
@@ -482,7 +481,7 @@ public function exportfilter(Request $request)
                         </table>
                         <br></div>';
     }
-    $dompdf = new Dompdf();
+
     $dompdf->loadHtml($content);
     $dompdf->setPaper('A4', 'landscape');
     $dompdf->render();

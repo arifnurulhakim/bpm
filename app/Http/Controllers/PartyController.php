@@ -360,7 +360,8 @@ public function exportfilter(Request $request)
 
     if ($tanggal_awal && $tanggal_akhir) {
         $party->whereBetween('tanggal_pembuatan', [$tanggal_awal, $tanggal_akhir]);
-    } else if ($tanggal_awal) {
+    } 
+    if ($tanggal_awal) {
         $party->where('tanggal_pembuatan', $tanggal_awal);
     }
 
